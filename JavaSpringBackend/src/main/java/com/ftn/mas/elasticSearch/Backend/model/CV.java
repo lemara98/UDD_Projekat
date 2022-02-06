@@ -1,11 +1,13 @@
 package com.ftn.mas.elasticSearch.Backend.model;
 
+import org.elasticsearch.common.geo.GeoPoint;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
+import org.springframework.data.elasticsearch.annotations.GeoPointField;
 
-@Document(indexName = "candidate")
+@Document(indexName = "cv")
 public class CV {
 	// public String title;
 	@Id
@@ -13,6 +15,8 @@ public class CV {
 	@Field(type = FieldType.Nested, includeInParent = true)
 	private Candidate candidate;
 	private String content;
+	@GeoPointField
+	private GeoPoint geopoint;
 	
 	
 	

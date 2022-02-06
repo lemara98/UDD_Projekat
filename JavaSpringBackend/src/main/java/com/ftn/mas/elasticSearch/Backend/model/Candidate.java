@@ -1,9 +1,15 @@
 package com.ftn.mas.elasticSearch.Backend.model;
 
-import java.util.Date;
+import java.time.LocalDate;
+
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.elasticsearch.annotations.DateFormat;
 import org.springframework.data.elasticsearch.annotations.Document;
+import org.springframework.data.elasticsearch.annotations.Field;
+import org.springframework.data.elasticsearch.annotations.FieldType;
 
 import com.ftn.mas.elasticSearch.Backend.enums.Education;
 
@@ -11,34 +17,36 @@ import com.ftn.mas.elasticSearch.Backend.enums.Education;
 public class Candidate {
 	@Id
 	public String id;
-	public String name;
-	public String lastName;
-	public Date dateOfBirth;
+	public String firstname;
+	public String lastname;
+	@Field(type = FieldType.Date, format = DateFormat.year_month_day)
+	public LocalDate dateOfBirth;
 	public String phoneNumber;
 	public Education education;
-	public int workingExperience;
+	public Integer workingExperience;
+	
 	public String getId() {
 		return id;
 	}
 	public void setId(String id) {
 		this.id = id;
 	}
-	public String getName() {
-		return name;
+	public String getFirstname() {
+		return firstname;
 	}
-	public void setName(String name) {
-		this.name = name;
+	public void setFirstname(String firstname) {
+		this.firstname = firstname;
 	}
-	public String getLastName() {
-		return lastName;
+	public String getLastname() {
+		return lastname;
 	}
-	public void setLastName(String lastName) {
-		this.lastName = lastName;
+	public void setLastname(String lastname) {
+		this.lastname = lastname;
 	}
-	public Date getDateOfBirth() {
+	public LocalDate getDateOfBirth() {
 		return dateOfBirth;
 	}
-	public void setDateOfBirth(Date dateOfBirth) {
+	public void setDateOfBirth(LocalDate dateOfBirth) {
 		this.dateOfBirth = dateOfBirth;
 	}
 	public String getPhoneNumber() {
@@ -53,10 +61,11 @@ public class Candidate {
 	public void setEducation(Education education) {
 		this.education = education;
 	}
-	public int getWorkingExperience() {
+	public Integer getWorkingExperience() {
 		return workingExperience;
 	}
-	public void setWorkingExperience(int workingExperience) {
+	public void setWorkingExperience(Integer workingExperience) {
 		this.workingExperience = workingExperience;
 	}
+	
 }
