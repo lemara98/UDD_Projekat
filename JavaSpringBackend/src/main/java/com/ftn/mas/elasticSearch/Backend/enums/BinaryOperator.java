@@ -1,8 +1,8 @@
 package com.ftn.mas.elasticSearch.Backend.enums;
 
 public enum BinaryOperator {
-	AND("and"),		// 0
-	OR("or");		// 1
+	AND("AND"),		// 0
+	OR("OR");		// 1
 	
 	private final String operator;
 

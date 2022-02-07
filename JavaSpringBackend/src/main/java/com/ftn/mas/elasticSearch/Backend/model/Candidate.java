@@ -2,9 +2,6 @@ package com.ftn.mas.elasticSearch.Backend.model;
 
 import java.time.LocalDate;
 
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.DateFormat;
 import org.springframework.data.elasticsearch.annotations.Document;
@@ -19,11 +16,12 @@ public class Candidate {
 	public String id;
 	public String firstname;
 	public String lastname;
-	@Field(type = FieldType.Date, format = DateFormat.year_month_day)
+	@Field(type = FieldType.Date, format = DateFormat.date)
 	public LocalDate dateOfBirth;
 	public String phoneNumber;
 	public Education education;
 	public Integer workingExperience;
+	private String city;
 	
 	public String getId() {
 		return id;
@@ -66,6 +64,12 @@ public class Candidate {
 	}
 	public void setWorkingExperience(Integer workingExperience) {
 		this.workingExperience = workingExperience;
+	}
+	public String getCity() {
+		return city;
+	}
+	public void setCity(String city) {
+		this.city = city;
 	}
 	
 }
