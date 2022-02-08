@@ -1,6 +1,7 @@
 import React from 'react';
 import { useState } from 'react';
 import axios from 'axios';
+import $ from 'jquery'; 
 
 const SearchPage = () => {
     const [selectedValue, setSelectedValue] = useState(`1`);
@@ -15,6 +16,7 @@ const SearchPage = () => {
 
     // error
     const [errorMessage, setErrorMessage] = useState("");
+    const [successMessage, setSuccessMessage] = useState("");
     // rest
 
     function changeSelectedValue(event) {
@@ -41,14 +43,14 @@ const SearchPage = () => {
                       { candidateResults.map((o, i) => (
                       <tr key={i} style={{cursor:`pointer`}}>
                           <th scope="row">{i+1}</th>
-                          <td>{o.candidate.firstname}</td>
-                          <td>{o.candidate.lastname}</td>
-                          <td>{new Intl.DateTimeFormat('sr-Latn-CS', {year: 'numeric', month: '2-digit',day: '2-digit'}).format(new Date(o.candidate.dateOfBirth[0], o.candidate.dateOfBirth[1] - 1, o.candidate.dateOfBirth[2]))}</td>
-                          <td>{o.candidate.city}</td>
-                          <td>{o.candidate.phoneNumber}</td>
-                          <td>{o.candidate.education}</td>
-                          <td>{o.candidate.workingExperience}</td>
-                          <td><button type="button" className="btn btn-dark"><a href={`/documents/${o.fileName}`} download>Download CV</a></button></td>
+                          <td>{o.content.candidate.firstname}</td>
+                          <td>{o.content.candidate.lastname}</td>
+                          <td>{new Intl.DateTimeFormat('sr-Latn-CS', {year: 'numeric', month: '2-digit',day: '2-digit'}).format(new Date(o.content.candidate.dateOfBirth[0], o.content.candidate.dateOfBirth[1] - 1, o.content.candidate.dateOfBirth[2]))}</td>
+                          <td>{o.content.candidate.city}</td>
+                          <td>{o.content.candidate.phoneNumber}</td>
+                          <td>{o.content.candidate.education}</td>
+                          <td>{o.content.candidate.workingExperience}</td>
+                          <td><button type="button" className="btn btn-dark" onClick={() => {window.open(`/documents/${o.content.fileName}`)}}>Download CV</button></td>
                       </tr>
                       ))
                       }
@@ -56,6 +58,96 @@ const SearchPage = () => {
             </table>
         )
     }
+
+    function ResultTableComplex() {
+      return (
+          <table  className="table table-hover mt-3 bg-light ">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">FirstName</th>
+                        <th scope="col">LastName</th>
+                        <th scope="col">Date of Birth</th>
+                        <th scope="col">City</th>
+                        <th scope="col">Phone Number</th>
+                        <th scope="col">Education</th>
+                        <th scope="col">Working experience [years]</th>
+                        <th scope="col">CV</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    { candidateResults !== [] ? candidateResults.map((o, i) => (
+                    <tr key={i} style={{cursor:`pointer`}}>
+                        <th scope="row">{i+1}</th>
+                        <td>{o._source.candidate.firstname}</td>
+                        <td>{o._source.candidate.lastname}</td>
+                        <td>{new Intl.DateTimeFormat('sr-Latn-CS', {year: 'numeric', month: '2-digit',day: '2-digit'}).format(new Date(o._source.candidate.dateOfBirth[0], o._source.candidate.dateOfBirth[1] - 1, o._source.candidate.dateOfBirth[2]))}</td>
+                        <td>{o._source.candidate.city}</td>
+                        <td>{o._source.candidate.phoneNumber}</td>
+                        <td>{o._source.candidate.education}</td>
+                        <td>{o._source.candidate.workingExperience}</td>
+                        <td><button type="button" className="btn btn-dark" onClick={() => {window.open(`/documents/${o._source.fileName}`)}}>Download CV</button></td>
+                    </tr>
+                    ))
+                    :
+                    null
+                    }
+                </tbody>
+          </table>
+      )
+  }
+
+    function ResultHighLight() {
+      return (
+              <div className='mt-3 bg-gray'>
+                  { candidateResults.map((o, i1) => (
+                  <p key={i1}>
+                      { 
+                        o.highlightFields['content.sr'].map((hl, i2) => (
+                        <div key={hl}>
+                          <h4>Korisnik #{i1+1}, Mesto #{i2+1}</h4>
+                          <p className="hl" dangerouslySetInnerHTML={{__html: htmlEscape(hl)}}></p>
+                        </div>
+                        ))
+                      }
+                  </p>
+                  ))
+                  }
+              </div>
+      )
+  }
+
+  function ResultHighLightComplex() {
+    console.log(candidateResults);
+    return (
+            <div className='mt-3 bg-gray'>
+                { candidateResults !== [] ? candidateResults.map((o, i1) => (
+                <div key={i1}>
+                    { 
+                      o.highlight !== undefined ? o.highlight['content.sr'].map((hl, i2) => (
+                      <div key={hl}>
+                        <h4>Korisnik #{i1+1}, Mesto #{i2+1}</h4>
+                        <p className="hl" dangerouslySetInnerHTML={{__html: htmlEscape(hl)}}></p>
+                      </div>
+                      ))
+                      :
+                      null
+                    }
+                </div>
+                ))
+                :
+                null
+                }
+            </div>
+    )
+}
+
+  function htmlEscape(str) {
+    var parser = new DOMParser();
+    let str1 = parser.parseFromString(str, 'text/html').body.innerHTML;
+    let str2 = str1.replace(`<em>`, `<em><strong>`).replace(`</em>`, `</strong></em>`);
+    return str2;
+}
     
 
     function search() {
@@ -67,11 +159,13 @@ const SearchPage = () => {
             }
             axios.post(`${searchControllerURL}/2.1`, nameAndLastNameDTO)
             .then((resp) => {
-                setCandidateResults(resp.data);
+                setCandidateResults(resp.data.searchHits);
+                setSuccessMessage("Successfully searched");
                 setErrorMessage("");
             })
             .catch(() => {
               setErrorMessage("Something went wrong during the search by: Name and LastName");
+              setSuccessMessage("");
             })
             break;
           case "2":
@@ -80,22 +174,26 @@ const SearchPage = () => {
             }
             axios.post(`${searchControllerURL}/2.2`, educationDTO)
             .then((resp) => {
-                setCandidateResults(resp.data);
+                setCandidateResults(resp.data.searchHits);
+                setSuccessMessage("Successfully searched");
                 setErrorMessage("");
             })
             .catch(() => {
               setErrorMessage("Something went wrong during the search by: Education");
+              setSuccessMessage("");
             })        
             break;
           case "3":
-            let contentData = { firstname: document.getElementById("textbox_name").value };
+            let contentData = { text: document.getElementById("textbox_sadrzaj").value };
             axios.post(`${searchControllerURL}/2.3`, contentData)
             .then((resp) => {
-                setCandidateResults(resp.data);
+                setCandidateResults(resp.data.searchHits);
+                setSuccessMessage("Successfully searched");
                 setErrorMessage("");
             })
             .catch(() => {
               setErrorMessage("Something went wrong during the search by: CV Content");
+              setSuccessMessage("");
             })   
             break;
           case "4":
@@ -109,11 +207,13 @@ const SearchPage = () => {
             };
             axios.post(`${searchControllerURL}/2.4`, complexQuery)
             .then((resp) => {
-                setCandidateResults(resp.data);
+                setCandidateResults(resp.data.jsonObject.hits.hits);
+                setSuccessMessage("Successfully searched");
                 setErrorMessage("");
             })
             .catch(() => {
               setErrorMessage("Something went wrong during the search by: CV Content");
+              setSuccessMessage("");
             })  
             break;
           case "5":
@@ -147,7 +247,7 @@ const SearchPage = () => {
                         <h5 className='mt-2'>Ime:</h5>
                         </div>
                         <div className='col-6'>
-                        <input id='textbox_name' type="text" className='form-control'></input>
+                        <input id='textbox_name' type="text" className='form-control' ></input>
                         </div>
                     </div>
                     <div className='d-flex my-2'>
@@ -286,11 +386,17 @@ const SearchPage = () => {
                 );
             case "3":
                 return (
-                <ResultTable/>
+                  <div>
+                    <ResultTable/>
+                    <ResultHighLight/>
+                  </div>
                 );
             case "4":
                 return (
-                <ResultTable/>
+                  <div>
+                    <ResultTableComplex/>
+                    <ResultHighLightComplex/>
+                  </div>
                 );
             case "5":
                 return (
@@ -331,6 +437,7 @@ const SearchPage = () => {
             <div className='col-5'>
                 <button className='form-control' style={{width:"100px"}} onClick={search}>Pretraži</button>
                 <div className='bg-danger text-white my-3'>{errorMessage}</div>
+                <div className='bg-success text-white my-3'>{successMessage}</div>
             </div>
             <div className='col-5'></div>
             

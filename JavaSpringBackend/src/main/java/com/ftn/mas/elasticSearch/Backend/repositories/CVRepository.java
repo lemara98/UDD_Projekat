@@ -1,20 +1,22 @@
 package com.ftn.mas.elasticSearch.Backend.repositories;
 
-import java.util.Collection;
-
+import org.springframework.data.elasticsearch.annotations.Highlight;
+import org.springframework.data.elasticsearch.annotations.HighlightField;
 import org.springframework.data.elasticsearch.annotations.Query;
+import org.springframework.data.elasticsearch.core.SearchHitsImpl;
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
 
 import com.ftn.mas.elasticSearch.Backend.model.CV;
 
 public interface CVRepository extends ElasticsearchRepository<CV, String> {
 
-	@Query("{\"bool\":{\"must\":[{\"match\":{\"candidate.firstname\":\"?0\"}},{\"match\":{\"candidate.lastname\":\"?1\"}}]}}")
-    Collection<CV> findCVByCandidatesFirstnameAndLastName(String firstname, String lastname);
+	@Query("{\"bool\":{\"must\":[{\"query_string\":{\"default_field\":\"candidate.firstname.sr\",\"query\":\"*?0*\"}},{\"query_string\":{\"default_field\":\"candidate.lastname.sr\",\"query\":\"*?1*\"}}]}}\r\n")
+	SearchHitsImpl<CV> findCVByCandidatesFirstnameAndLastName(String firstname, String lastname);
 	
 	@Query("{\"match\":{\"candidate.education\":{\"query\":\"?0\"}}}")
-    Collection<CV> findCVByCandidatesEducation(String education);
+	SearchHitsImpl<CV> findCVByCandidatesEducation(String education);
 	
-	@Query("{\"match\":{\"content.sr\":\"?0\"}}")
-	Collection<CV> findCVByContent(String content);
+	@Query("{\"bool\":{\"must\":[{\"query_string\":{\"default_field\":\"content.sr\",\"query\":\"*?0*\"}}]}}\r\n")
+	@Highlight(fields = {@HighlightField(name = "content.sr")})
+	SearchHitsImpl<CV> findCVByContent(String content);
 }

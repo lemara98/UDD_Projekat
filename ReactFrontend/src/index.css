@@ -62,3 +62,7 @@ div {
   display: block;
   width: 100%;
 }
+
+em {
+  font-style: italic;
+}

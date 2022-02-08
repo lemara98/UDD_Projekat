@@ -38,6 +38,7 @@ const UploadPage = () => {
             axios.post(`${uploadControllerURL}/cv`, formData)
             .then(() => {
                 setErrorMessage("");
+                alert("Successfully uploaded CV");
             })
             .catch(() => {
                 setErrorMessage("Upload CV PDF failed!");

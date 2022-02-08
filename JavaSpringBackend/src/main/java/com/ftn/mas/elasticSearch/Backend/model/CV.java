@@ -51,6 +51,7 @@ public class CV {
 	public void setFileName(String fileName) {
 		this.fileName = fileName;
 	}
+	
 	@Override
 	public boolean equals(Object obj) {
 		// TODO Auto-generated method stub

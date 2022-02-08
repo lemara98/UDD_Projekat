@@ -4,6 +4,7 @@ import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.stream.Stream;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -29,8 +30,9 @@ public class FilesStorageServiceImpl implements FilesStorageService {
     	var p1 = file.getInputStream();
     	var p2 = this.root.resolve(file.getOriginalFilename());
     	var p3 = this.root.resolve("../../ReactFrontend/public/documents/" + file.getOriginalFilename());
-    	Files.copy(p1, p2);
-    	Files.copy(p1, p3);
+    	Files.copy(p1, p2, StandardCopyOption.REPLACE_EXISTING);
+    	p1 = file.getInputStream();
+    	Files.copy(p1, p3, StandardCopyOption.REPLACE_EXISTING);
     } catch (Exception e) {
 	  e.printStackTrace();
       throw new RuntimeException("Could not store the file. Error: " + e.getMessage());
