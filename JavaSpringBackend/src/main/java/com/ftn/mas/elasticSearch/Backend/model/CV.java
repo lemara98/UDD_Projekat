@@ -19,7 +19,7 @@ public class CV {
 	@Field(type = FieldType.Text)
 	private String fileName;
 	@GeoPointField
-	private GeoPoint geopoint;
+	private GeoPoint geoPoint;
 	
 	public String getId() {
 		return id;
@@ -39,11 +39,11 @@ public class CV {
 	public void setContent(String content) {
 		this.content = content;
 	}
-	public GeoPoint getGeopoint() {
-		return geopoint;
+	public GeoPoint getGeoPoint() {
+		return geoPoint;
 	}
-	public void setGeopoint(GeoPoint geopoint) {
-		this.geopoint = geopoint;
+	public void setGeoPoint(GeoPoint geopoint) {
+		this.geoPoint = geopoint;
 	}
 	public String getFileName() {
 		return fileName;

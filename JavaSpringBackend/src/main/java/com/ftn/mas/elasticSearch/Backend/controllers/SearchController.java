@@ -102,12 +102,8 @@ public class SearchController {
     public Object getApplicationByCombined(@RequestBody BodyCombinedDTO dto) throws Exception {
     	try {
     		logger.info("Entered /2.4 Boolean Query POST method");
-//    		SearchHitsImpl<CV> result1 = cvRepository.findCVByCandidatesFirstnameAndLastName(dto.firstName, dto.lastName);
-//    		SearchHitsImpl<CV> result2 = cvRepository.findCVByCandidatesEducation(dto.education.getEducation());
-//    		SearchHitsImpl<CV> result3 = cvRepository.findCVByContent(dto.content);
     		
-    		String query;
-    		
+    		String query;    		
     		
     		if (dto.operator1 == BinaryOperator.AND && dto.operator2 == BinaryOperator.AND) {
     			query = "{\r\n"
@@ -117,13 +113,13 @@ public class SearchController {
     					+ "        {\r\n"
     					+ "          \"query_string\": {\r\n"
     					+ "            \"default_field\": \"candidate.firstname.sr\",\r\n"
-    					+ "            \"query\": \"*" + dto.firstName + "*\"\r\n"
+    					+ "            \"query\": \"" + dto.firstName + "\"\r\n"
     					+ "          }\r\n"
     					+ "        },\r\n"
     					+ "        {\r\n"
     					+ "          \"query_string\": {\r\n"
     					+ "            \"default_field\": \"candidate.lastname.sr\",\r\n"
-    					+ "            \"query\": \"*" + dto.lastName + "*\"\r\n"
+    					+ "            \"query\": \"" + dto.lastName + "\"\r\n"
     					+ "          }\r\n"
     					+ "        }\r\n"
     					+ "      ],\r\n"
@@ -157,13 +153,13 @@ public class SearchController {
     					+ "        {\r\n"
     					+ "          \"query_string\": {\r\n"
     					+ "            \"default_field\": \"candidate.firstname.sr\",\r\n"
-    					+ "            \"query\": \"*" + dto.firstName + "*\"\r\n"
+    					+ "            \"query\": \"" + dto.firstName + "\"\r\n"
     					+ "          }\r\n"
     					+ "        },\r\n"
     					+ "        {\r\n"
     					+ "          \"query_string\": {\r\n"
     					+ "            \"default_field\": \"candidate.lastname.sr\",\r\n"
-    					+ "            \"query\": \"*" + dto.lastName + "*\"\r\n"
+    					+ "            \"query\": \"" + dto.lastName + "\"\r\n"
     					+ "          }\r\n"
     					+ "        },\r\n"
     					+ "        {\r\n"
@@ -198,13 +194,13 @@ public class SearchController {
     					+ "        {\r\n"
     					+ "          \"query_string\": {\r\n"
     					+ "            \"default_field\": \"candidate.firstname.sr\",\r\n"
-    					+ "            \"query\": \"*" + dto.firstName + "*\"\r\n"
+    					+ "            \"query\": \"" + dto.firstName + "\"\r\n"
     					+ "          }\r\n"
     					+ "        },\r\n"
     					+ "        {\r\n"
     					+ "          \"query_string\": {\r\n"
     					+ "            \"default_field\": \"candidate.lastname.sr\",\r\n"
-    					+ "            \"query\": \"*" + dto.lastName + "*\"\r\n"
+    					+ "            \"query\": \"" + dto.lastName + "\"\r\n"
     					+ "          }\r\n"
     					+ "        },\r\n"
     					+ "        {\r\n"
@@ -239,13 +235,13 @@ public class SearchController {
     					+ "        {\r\n"
     					+ "          \"query_string\": {\r\n"
     					+ "            \"default_field\": \"candidate.firstname.sr\",\r\n"
-    					+ "            \"query\": \"*" + dto.firstName + "*\"\r\n"
+    					+ "            \"query\": \"" + dto.firstName + "\"\r\n"
     					+ "          }\r\n"
     					+ "        },\r\n"
     					+ "        {\r\n"
     					+ "          \"query_string\": {\r\n"
     					+ "            \"default_field\": \"candidate.lastname.sr\",\r\n"
-    					+ "            \"query\": \"*" + dto.lastName + "*\"\r\n"
+    					+ "            \"query\": \"" + dto.lastName + "\"\r\n"
     					+ "          }\r\n"
     					+ "        },\r\n"
     					+ "        {\r\n"
@@ -292,15 +288,196 @@ public class SearchController {
     }
     
     @PostMapping("/2.5")
-    public String getApplicationByPhrazeQuery(@RequestBody BodyPhraseQueryDTO dto) throws Exception {
-        
-    	return null;
+    public String getApplicationByPhrazeQuery(@RequestBody BodyCombinedDTO dto) throws Exception {
+    	try {
+    		logger.info("Entered /2.5 Boolean Phaze Query POST method");
+    		
+    		String query;    		
+    		
+    		if (dto.operator1 == BinaryOperator.AND && dto.operator2 == BinaryOperator.AND) {
+    			query = "{\r\n"
+    					+ "  \"query\": {\r\n"
+    					+ "    \"bool\": {\r\n"
+    					+ "      \"should\": [\r\n"
+    					+ "        {\r\n"
+    					+ "          \"match_phrase\": {\r\n"
+    					+ "            \"candidate.firstname.sr\": \"" + dto.firstName + "\"\r\n"
+    					+ "          }\r\n"
+    					+ "        },\r\n"
+    					+ "        {\r\n"
+    					+ "          \"match_phrase\": {\r\n"
+    					+ "            \"candidate.lastname.sr\": \"" + dto.lastName + "\"\r\n"
+    					+ "          }\r\n"
+    					+ "        }\r\n"
+    					+ "      ],\r\n"
+    					+ "      \"must\": [\r\n"
+    					+ "        {\r\n"
+    					+ "          \"match\": {\r\n"
+    					+ "            \"candidate.education\": \"" + dto.education + "\"\r\n"
+    					+ "          }\r\n"
+    					+ "        }, \r\n"
+    					+ "        {\r\n"
+    					+ "          \"match_phrase\": {\r\n"
+    					+ "            \"content.sr\": \"" + dto.content + "\"\r\n"
+    					+ "          }\r\n"
+    					+ "        }\r\n"
+    					+ "      ]\r\n"
+    					+ "    }\r\n"
+    					+ "  },\r\n"
+    					+ "  \"highlight\": {\r\n"
+    					+ "    \"fields\": {\r\n"
+    					+ "      \"content.sr\": {}\r\n"
+    					+ "    }\r\n"
+    					+ "  }\r\n"
+    					+ "}";
+    		}
+    		else if (dto.operator1 != BinaryOperator.AND && dto.operator2 == BinaryOperator.AND){
+    			query = "{\r\n"
+    					+ "  \"query\": {\r\n"
+    					+ "    \"bool\": {\r\n"
+    					+ "      \"should\": [\r\n"
+    					+ "        {\r\n"
+    					+ "          \"match_phrase\": {\r\n"
+    					+ "            \"candidate.firstname.sr\": \"" + dto.firstName + "\"\r\n"
+    					+ "          }\r\n"
+    					+ "        },\r\n"
+    					+ "        {\r\n"
+    					+ "          \"match_phrase\": {\r\n"
+    					+ "            \"candidate.lastname.sr\": \"" + dto.lastName + "\"\r\n"
+    					+ "          }\r\n"
+    					+ "        },\r\n"
+    					+ "        {\r\n"
+    					+ "          \"match\": {\r\n"
+    					+ "            \"candidate.education\": \"" + dto.education + "\"\r\n"
+    					+ "          }\r\n"
+    					+ "        }\r\n"
+    					+ "      ],\r\n"
+    					+ "      \"must\": [\r\n"
+    					+ "         \r\n"
+    					+ "        {\r\n"
+    					+ "          \"match_phrase\": {\r\n"
+    					+ "            \"content.sr\": \"" + dto.content + "\"\r\n"
+    					+ "          }\r\n"
+    					+ "        }\r\n"
+    					+ "      ]\r\n"
+    					+ "    }\r\n"
+    					+ "  },\r\n"
+    					+ "  \"highlight\": {\r\n"
+    					+ "    \"fields\": {\r\n"
+    					+ "      \"content.sr\": {}\r\n"
+    					+ "    }\r\n"
+    					+ "  }\r\n"
+    					+ "}";
+    		}
+    		else if (dto.operator1 == BinaryOperator.AND && dto.operator2 != BinaryOperator.AND){
+    			query = "{\r\n"
+    					+ "  \"query\": {\r\n"
+    					+ "    \"bool\": {\r\n"
+    					+ "      \"should\": [\r\n"
+    					+ "        {\r\n"
+    					+ "          \"match_phrase\": {\r\n"
+    					+ "            \"candidate.firstname.sr\": \"" + dto.firstName + "\"\r\n"
+    					+ "          }\r\n"
+    					+ "        },\r\n"
+    					+ "        {\r\n"
+    					+ "          \"match_phrase\": {\r\n"
+    					+ "            \"candidate.lastname.sr\": \"" + dto.lastName + "\"\r\n"
+    					+ "          }\r\n"
+    					+ "        },\r\n"
+    					+ "        {\r\n"
+    					+ "          \"match_phrase\": {\r\n"
+    					+ "            \"content.sr\": \"" + dto.content + "\"\r\n"
+    					+ "          }\r\n"
+    					+ "        }\r\n"
+    					+ "      ],\r\n"
+    					+ "      \"must\": [\r\n"
+    					+ "        {\r\n"
+    					+ "          \"match\": {\r\n"
+    					+ "            \"candidate.education\": \"" + dto.education + "\"\r\n"
+    					+ "          }\r\n"
+    					+ "        }\r\n"
+    					+ "      ]\r\n"
+    					+ "    }\r\n"
+    					+ "  },\r\n"
+    					+ "  \"highlight\": {\r\n"
+    					+ "    \"fields\": {\r\n"
+    					+ "      \"content.sr\": {}\r\n"
+    					+ "    }\r\n"
+    					+ "  }\r\n"
+    					+ "}";
+    		}
+    		// if (dto.operator1 != BinaryOperator.AND && dto.operator2 != BinaryOperator.AND)
+    		else {
+    			query = "{\r\n"
+    					+ "  \"query\": {\r\n"
+    					+ "    \"bool\": {\r\n"
+    					+ "      \"should\": [\r\n"
+    					+ "        {\r\n"
+    					+ "          \"match_phrase\": {\r\n"
+    					+ "            \"candidate.firstname.sr\": \"" + dto.firstName + "\"\r\n"
+    					+ "          }\r\n"
+    					+ "        },\r\n"
+    					+ "        {\r\n"
+    					+ "          \"match_phrase\": {\r\n"
+    					+ "            \"candidate.lastname.sr\": \"" + dto.lastName + "\"\r\n"
+    					+ "          }\r\n"
+    					+ "        },\r\n"
+    					+ "        {\r\n"
+    					+ "          \"match_phrase\": {\r\n"
+    					+ "            \"content.sr\": \"" + dto.content + "\"\r\n"
+    					+ "          }\r\n"
+    					+ "        },\r\n"
+    					+ "        {\r\n"
+    					+ "          \"match\": {\r\n"
+    					+ "            \"candidate.education\": \"" + dto.education + "\"\r\n"
+    					+ "          }\r\n"
+    					+ "        }\r\n"
+    					+ "      ]\r\n"
+    					+ "    }\r\n"
+    					+ "  },\r\n"
+    					+ "  \"highlight\": {\r\n"
+    					+ "    \"fields\": {\r\n"
+    					+ "      \"content.sr\": {}\r\n"
+    					+ "    }\r\n"
+    					+ "  }\r\n"
+    					+ "}";
+    		}
+    		
+    		SearchResult getResult = jestClient.execute(new Search.Builder(query).build());
+    		
+    		Gson gson = new GsonBuilder()
+    	            .setPrettyPrinting()
+    	            .registerTypeAdapter(LocalDate.class, new LocalDateAdapter())
+    	            .create();
+    		
+    		var retVal = gson.toJson(getResult);
+    		
+
+        	logger.info("Got result from Elastic Search Repository");
+        	return retVal;
+    	}
+    	catch (Exception e) {
+			// TODO: handle exception
+    		logger.error(e.getLocalizedMessage());
+    		logger.error("Something went wrong during retrieval of CV by BOOL Phraze QUERY");
+    		return null;
+		}
     }
     
-    @PostMapping("/2.8")
-    public String getApplicationByGeoCoding(@RequestBody BodyGeoCodingDTO dto) throws Exception {
-        
-    	return null;
+    @PostMapping("/2.6")
+    public SearchHitsImpl<CV> getApplicationByGeoCoding(@RequestBody BodyGeoCodingDTO dto) throws Exception {
+    	try {
+    		logger.info("Entered /2.6 Geolocation POST method");
+    		SearchHitsImpl<CV> result = cvRepository.findCVByGeoLocation(dto.latitude, dto.longitude, dto.radius);
+        	logger.info("Got result from Elastic Search Repository (count): " + result.getSearchHits().size());
+        	return result;
+    	}
+    	catch (Exception e) {
+			// TODO: handle exception
+    		logger.error(e.getLocalizedMessage());
+    		logger.error("Something went wrong during GeoLocationQuery");
+    		return null;
+		}
     }
     
     public class LocalDateAdapter implements JsonSerializer<LocalDate> {
@@ -312,101 +489,5 @@ public class SearchController {
 
     }
     
-//    private Set<CV> convertToHashSet(SearchHitsImpl<CV> result) {
-//    	Set<CV> retVal = new HashSet<CV>();
-//    	for(SearchHit<CV> sh : result.getSearchHits()) {
-//    		retVal.add(sh.getContent());
-//    	}
-//    	return retVal;
-//    }
-//    
-//    
-//    private Set<CV> getFinalSetAfterSetOperations(BodyCombinedDTO dto, Set<CV> set1, Set<CV> set2, Set<CV> set3) {
-//    	
-//    	Set<CV> setTemp1 = new HashSet<CV>();
-//		Set<CV> setTemp2 = new HashSet<CV>();
-//		Set<CV> setFinal = new HashSet<CV>();
-//    	
-//    	if (dto.operator1 == BinaryOperator.AND) {
-//			for (CV cv1 : set1) {
-//				boolean isInside = false;
-//				for (CV cv2 : set2) {
-//    				if (cv1.equals(cv2)) {
-//    					isInside = true;
-//    					break;
-//    				}
-//    			}
-//				if (isInside) setTemp1 .add(cv1);
-//			}
-//			
-//		}
-//		else {
-//			if (set1.size() == 0) setTemp1 = set2;
-//			for (CV cv1 : set1) {
-//				boolean isNotInside = false;
-//				for (CV cv2 : set2) {
-//    				if (!cv1.equals(cv2)) {
-//    					isNotInside = true;
-//    					break;
-//    				}
-//    			}
-//				if (isNotInside) setTemp1.add(cv1);
-//			}
-//		}
-//		
-//		if (dto.operator2 == BinaryOperator.AND) {
-//			for (CV cv1 : setTemp1) {
-//				boolean isInside = false;
-//				for (CV cv2 : set3) {
-//    				if (cv1.equals(cv2)) {
-//    					isInside = true;
-//    					break;
-//    				}
-//    			}
-//				if (isInside) setTemp2.add(cv1);
-//			}
-//			
-//		}
-//		else {
-//			if (setTemp1.size() == 0) setFinal = set3;
-//			for (CV cv1 : setTemp1) {
-//				boolean isNotInside = false;
-//				for (CV cv2 : set3) {
-//    				if (!cv1.equals(cv2)) {
-//    					isNotInside = true;
-//    					break;
-//    				}
-//    			}
-//				if (isNotInside) setTemp2.add(cv1);
-//			}
-//		}
-//		
-//		setFinal.addAll(setTemp1);
-//		
-//		Set<CV> finalTemp = new HashSet<CV>();
-//		
-//		for (CV cv1 : setFinal) {
-//			boolean isInside = false;
-//			for (CV cv2 : setTemp2) {
-//				if (cv1.equals(cv2)) {
-//					isInside = true;
-//					break;
-//				}
-//			}
-//			if (!isInside) finalTemp.add(cv1);
-//		}
-//		
-//		setFinal.addAll(finalTemp);
-//		return setFinal;
-//    }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
 }

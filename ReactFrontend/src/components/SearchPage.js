@@ -1,15 +1,17 @@
 import React from 'react';
 import { useState } from 'react';
 import axios from 'axios';
-import $ from 'jquery'; 
 
 const SearchPage = () => {
     const [selectedValue, setSelectedValue] = useState(`1`);
     const searchControllerURL = "http://localhost:8080/api/search";
 
-    // criteria
+    // Criteria Values
     // const [name, setName] = useState("");
-    // const [lastName, setLastName] = useState("");
+    // const [lastName, setLastName] = useState("")
+    // const [education, setEducation] = useState("Osnovno");
+
+
 
     // results
     const [candidateResults, setCandidateResults] = useState();
@@ -20,10 +22,24 @@ const SearchPage = () => {
     // rest
 
     function changeSelectedValue(event) {
+        setCandidateResults(undefined);
         setSelectedValue(event.target.value.toString());
       }
+
+
+    function geocoding() {
+        axios.get(`https://nominatim.openstreetmap.org/search/${document.getElementById("textbox_city").value}?format=json&limit=1`) 
+        .then((resp) => {
+          document.getElementById("textbox_lon").value = resp.data[0].lon;
+          document.getElementById("textbox_lat").value = resp.data[0].lat;
+        })
+        .catch((error) => {
+          console.log(error);
+        })
+    }
     
     function ResultTable() {
+      if (candidateResults === undefined) return;
         return (
             <table  className="table table-hover mt-3 bg-light ">
                   <thead>
@@ -60,6 +76,7 @@ const SearchPage = () => {
     }
 
     function ResultTableComplex() {
+      if (candidateResults === undefined) return;
       return (
           <table  className="table table-hover mt-3 bg-light ">
                 <thead>
@@ -98,10 +115,11 @@ const SearchPage = () => {
   }
 
     function ResultHighLight() {
+      if (candidateResults === undefined) return;
       return (
               <div className='mt-3 bg-gray'>
                   { candidateResults.map((o, i1) => (
-                  <p key={i1}>
+                  <div key={i1}>
                       { 
                         o.highlightFields['content.sr'].map((hl, i2) => (
                         <div key={hl}>
@@ -110,7 +128,7 @@ const SearchPage = () => {
                         </div>
                         ))
                       }
-                  </p>
+                  </div>
                   ))
                   }
               </div>
@@ -118,14 +136,14 @@ const SearchPage = () => {
   }
 
   function ResultHighLightComplex() {
-    console.log(candidateResults);
+    if (candidateResults === undefined) return;
     return (
             <div className='mt-3 bg-gray'>
                 { candidateResults !== [] ? candidateResults.map((o, i1) => (
                 <div key={i1}>
                     { 
                       o.highlight !== undefined ? o.highlight['content.sr'].map((hl, i2) => (
-                      <div key={hl}>
+                      <div key={i2}>
                         <h4>Korisnik #{i1+1}, Mesto #{i2+1}</h4>
                         <p className="hl" dangerouslySetInnerHTML={{__html: htmlEscape(hl)}}></p>
                       </div>
@@ -212,21 +230,48 @@ const SearchPage = () => {
                 setErrorMessage("");
             })
             .catch(() => {
-              setErrorMessage("Something went wrong during the search by: CV Content");
+              setErrorMessage("Something went wrong during the search by: Boolean Complex Query");
               setSuccessMessage("");
             })  
             break;
           case "5":
-        
+            let complexQuery2 = { 
+              firstName: document.getElementById("textbox_name").value,
+              lastName: document.getElementById("textbox_lastName").value,
+              education: document.getElementById("textbox_education").value,
+              content: document.getElementById("textbox_sadrzaj").value,
+              operator1: document.getElementById("textbox_operator1").value,
+              operator2: document.getElementById("textbox_operator2").value,
+            };
+            
+            axios.post(`${searchControllerURL}/2.5`, complexQuery2)
+            .then((resp) => {
+                setCandidateResults(resp.data.jsonObject.hits.hits);
+                setSuccessMessage("Successfully searched");
+                setErrorMessage("");
+            })
+            .catch(() => {
+              setErrorMessage("Something went wrong during the search by: Phrase query");
+              setSuccessMessage("");
+            })  
             break;
           case "6":
-        
-            break;
-          case "7":
-        
-            break;
-          case "8":
-      
+            let geoLocation = { 
+              longitude: document.getElementById("textbox_lon").value,
+              latitude: document.getElementById("textbox_lat").value,
+              radius: Math.ceil(document.getElementById("textbox_radius").value)
+            };
+            axios.post(`${searchControllerURL}/2.6`, geoLocation)
+            .then((resp) => {
+                setCandidateResults(resp.data.jsonObject.hits.hits);
+                setSuccessMessage("Successfully searched");
+                setErrorMessage("");
+            })
+            .catch(() => {
+              setErrorMessage("Something went wrong during the search by: Phrase query");
+              setSuccessMessage("");
+            })  
+            
             break;
     
           default:
@@ -247,7 +292,7 @@ const SearchPage = () => {
                         <h5 className='mt-2'>Ime:</h5>
                         </div>
                         <div className='col-6'>
-                        <input id='textbox_name' type="text" className='form-control' ></input>
+                        <input id='textbox_name' type="text" className='form-control'></input>
                         </div>
                     </div>
                     <div className='d-flex my-2'>
@@ -367,7 +412,117 @@ const SearchPage = () => {
                     </div>
                 </div>
                 );
-        
+                case "5":
+                  return (
+                  <div className='row' >
+                      {/* This form is used for: 2.1 Pretraživanje aplikanata po imenu i prezimenu */}
+                      <div className='container'>
+                          <div className='d-flex my-2'>
+                              <div className='col-6'>
+                              <h5 className='mt-2'>Ime:</h5>
+                              </div>
+                              <div className='col-6'>
+                              <input id='textbox_name' type="text" className='form-control'></input>
+                              </div>
+                          </div>
+                          <div className='d-flex my-2'>
+                              <div className='col-6'>
+                              <h5 className='mt-2'>Prezime:</h5>
+                              </div>
+                              <div className='col-6'>
+                              <input id='textbox_lastName' type="text" className='form-control'></input>
+                              </div>
+                          </div>
+                          <div className='d-flex my-2'>
+                              <div className='col-6'>
+                              <h5 className='mt-2'>Operator 1:</h5>
+                              </div>
+                              <div className='col-6'>
+                                  <select id='textbox_operator1' className='form-control'>
+                                      <option value="AND">AND</option> 
+                                      <option value="OR">OR</option>
+                                  </select>
+                              </div>
+                          </div>
+                          <div className='d-flex my-2'>
+                              <div className='col-6'>
+                                  <h5 className='mt-2'>Obrazovanje:</h5>
+                              </div>
+                              <div className='col-6'>
+                                  <select id='textbox_education' className='form-control'>
+                                  <option value="Osnovno">Osnovno</option> 
+                                  <option value="Srednje">Srednje</option>
+                                  <option value="Vise">Više</option>
+                                  <option value="Visoko">Visoko</option>
+                                  <option value="Specijalisticko">Specijalisticko</option>
+                                  </select>
+                              </div>
+                          </div>
+                          <div className='d-flex my-2'>
+                              <div className='col-6'>
+                              <h5 className='mt-2'>Operator 2:</h5>
+                              </div>
+                              <div className='col-6'>
+                                  <select id='textbox_operator2' className='form-control'>
+                                      <option value="AND">AND</option> 
+                                      <option value="OR">OR</option>
+                                  </select>
+                              </div>
+                          </div>
+                          <div className='d-flex my-2'>
+                              <div className='col-6'>
+                              <h5 className='mt-2'>Sadržaj CV-a:</h5>
+                              </div>
+                              <div className='col-6'>
+                              <input id='textbox_sadrzaj' type="text" className='form-control'></input>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+                  );
+                case "6":
+                  return (
+                  <div className='row' >
+                      {/* This form is used for: 2.1 Pretraživanje aplikanata po imenu i prezimenu */}
+                      <div className='container'>
+                          <div className='d-flex my-2'>
+                              <div className='col-3'>
+                              <h5 className='mt-2'>Grad:</h5>
+                              </div>
+                              <div className='col-3'>
+                              <input id='textbox_city' type="text" className='form-control mx-2' ></input>
+                              </div>
+                              <div className='col-6'>
+                                <center>
+                                  <button className='form-control mx-2 bg-warning' style={{width:`90%`}} onClick={geocoding}>Get Coordinates</button>
+                                </center>
+                              </div>
+                          </div>
+                          <div className='d-flex my-2'>
+                              <div className='col-3'>
+                              <h5 className='mt-2'>Lon:</h5>
+                              </div>
+                              <div className='col-3'>
+                              <input id='textbox_lon' type="text" className='form-control' readOnly></input>
+                              </div>
+                              <div className='col-3'>
+                              <h5 className='mt-2'>Lat:</h5>
+                              </div>
+                              <div className='col-3'>
+                              <input id='textbox_lat' type="text" className='form-control' readOnly></input>
+                              </div>
+                          </div>
+                          <div className='d-flex my-2'>
+                              <div className='col-6'>
+                              <h5 className='mt-2'>Poluprečnik(udaljenost)[km]:</h5>
+                              </div>
+                              <div className='col-6'>
+                              <input id='textbox_radius' type="number" min={1} className='form-control'></input>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+                  );
           default:
             return (<div>{selectedValue}</div>);
         }
@@ -400,8 +555,15 @@ const SearchPage = () => {
                 );
             case "5":
                 return (
-                <ResultTable/>
+                  <div>
+                    <ResultTableComplex/>
+                    <ResultHighLightComplex/>
+                  </div>
                 );
+            case "6":
+              return (
+              <ResultTable/>
+              );
         
           default:
             return (<div>{selectedValue}</div>);
@@ -423,9 +585,7 @@ const SearchPage = () => {
                 <option value="3">2.3 Pretraživanje prema sadržaju CV dokumenta (iz PDF fajla)</option>
                 <option value="4">2.4 Kombinacija prethodnih parametara pretrage (BooleanQuery, omogućiti i AND i OR operator između polja)</option>
                 <option value="5">2.5 Obezbediti podršku i za zadavanje PhrazeQuery-a u svim poljima</option>
-                <option value="6">2.6 Pretprocesirati upit pomoću SerbianAnalyzer-a</option>
-                <option value="7">2.7 Prilikom prikaza rezultata kreirati dinamički sažetak (Highlighter)</option>
-                <option value="8">2.8 Pretraživanje po Geolokaciji</option>
+                <option value="6">2.6 Pretraživanje po Geolokaciji</option>
             </select>
             </div>
             <hr style={{border:"3px solid"}}></hr>
@@ -436,8 +596,8 @@ const SearchPage = () => {
             <div className='col-5'></div>
             <div className='col-5'>
                 <button className='form-control' style={{width:"100px"}} onClick={search}>Pretraži</button>
-                <div className='bg-danger text-white my-3'>{errorMessage}</div>
-                <div className='bg-success text-white my-3'>{successMessage}</div>
+                <div className='bg-danger text-white my-3' style={{width:"100px"}}>{errorMessage}</div>
+                <div className='bg-success text-white my-3' style={{width:"100px"}}>{successMessage}</div>
             </div>
             <div className='col-5'></div>
             

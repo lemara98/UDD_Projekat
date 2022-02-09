@@ -17,11 +17,9 @@ const UploadPage = () => {
         let workingExperience = document.getElementById("textbox_iskustvo").value;
         let cv = document.getElementById("upload_pdf_file").files[0];
 
-        var geoPointLon = null;
-        var geoPointLat = null;
-        navigator.geolocation.getCurrentPosition(function(position) {
-            geoPointLat = position.coords.latitude;
-            geoPointLon = position.coords.longitude;
+        axios.get(`https://nominatim.openstreetmap.org/search/${city}?format=json&limit=1`) 
+        .then((resp) => {
+            if (resp.data === undefined || resp.data === null || resp.data === []) throw new Error();
 
             let formData = new FormData();
             formData.append('firstname', firstname);
@@ -32,8 +30,8 @@ const UploadPage = () => {
             formData.append('education', education);
             formData.append('workingExperience', workingExperience);
             formData.append('cvDoc', cv);
-            formData.append('geoPointLat', geoPointLat);
-            formData.append('geoPointLon', geoPointLon);
+            formData.append('geoPointLat', resp.data[0].lat);
+            formData.append('geoPointLon', resp.data[0].lon);
 
             axios.post(`${uploadControllerURL}/cv`, formData)
             .then(() => {
@@ -43,7 +41,11 @@ const UploadPage = () => {
             .catch(() => {
                 setErrorMessage("Upload CV PDF failed!");
             })
-        });
+        })
+        .catch((error) => {
+          console.log(error);
+        })
+            
     }
         
         

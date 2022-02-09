@@ -97,7 +97,7 @@ public class UploadPDFController {
 	    	cv.setId(candidate.getId());
 	    	cv.setCandidate(candidate);
 	    	cv.setFileName(file.getOriginalFilename());
-	    	cv.setGeopoint(geoPoint);
+	    	cv.setGeoPoint(geoPoint);
 	    	cv.setContent(parsedText);
 	    	++UploadPDFController.num;
 	    	cvRepository.save(cv);
